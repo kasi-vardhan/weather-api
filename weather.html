@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>kasi vardhan</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      color: rgb(242, 194, 194);
+      transition: background 1s ease-in-out;
+    }
+
+    /* === BACKGROUND LAYER === */
+    .bg-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    /* === ANIMATED CLOUDS === */
+    .cloud {
+      position: absolute;
+      top: 10%;
+      width: 200px;
+      height: 100px;
+      background: #fff;
+      border-radius: 100px;
+      filter: blur(2px);
+      opacity: 0.8;
+      animation: moveClouds 60s linear infinite;
+    }
+    .cloud:before, .cloud:after {
+      content: "";
+      position: absolute;
+      background: #fff;
+      width: 100px;
+      height: 100px;
+      top: -20px;
+      left: 30px;
+      border-radius: 50%;
+    }
+    .cloud:after {
+      width: 120px;
+      height: 120px;
+      top: -40px;
+      left: 100px;
+    }
+    @keyframes moveClouds {
+      from { transform: translateX(-250px); }
+      to { transform: translateX(110vw); }
+    }
+
+    /* === 3D SUN & MOON === */
+    .sun, .moon {
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite alternate;
+      z-index: 1;
+    }
+
+    .sun {
+      background: radial-gradient(circle, #fff176 30%, #fdd835 60%, #fbc02d 90%);
+      box-shadow: 0 0 40px rgba(255, 204, 0, 0.9);
+    }
+
+    .moon {
+      background: radial-gradient(circle, #eeeeee 30%, #cfcfcf 70%);
+      box-shadow: 0 0 30px rgba(200, 200, 200, 0.5);
+    }
+
+    @keyframes float {
+      from { transform: translateX(-50%) translateY(0); }
+      to { transform: translateX(-50%) translateY(20px); }
+    }
+
+    /* === RAIN DROPS === */
+    .rain-drop {
+      position: absolute;
+      width: 2px;
+      height: 15px;
+      background: rgba(255, 255, 255, 0.7);
+      bottom: 100%;
+      animation: rainFall linear infinite;
+    }
+    @keyframes rainFall {
+      to { transform: translateY(110vh); }
+    }
+
+    /* === SNOW FLAKES === */
+    .snow-flake {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: snowFall linear infinite;
+    }
+    @keyframes snowFall {
+      to { transform: translateY(110vh) rotate(360deg); }
+    }
+
+    /* === LIGHTNING FLASH === */
+    .lightning {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: white;
+      opacity: 0;
+      z-index: 1;
+      animation: flash 2s infinite;
+    }
+    @keyframes flash {
+      0%, 95%, 100% { opacity: 0; }
+      97% { opacity: 0.6; }
+    }
+
+    /* === CONTAINER CARD === */
+    .container {
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 25px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      padding: 30px 25px;
+      width: 320px;
+      transform-style: preserve-3d;
+      transform: perspective(1000px);
+      transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+      transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.02);
+    }
+
+    input {
+      padding: 10px;
+      width: 85%;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    button {
+      background: #ffffff;
+      color: #333;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.08);
+      background: #eaeaea;
+    }
+
+    #result {
+      margin-top: 20px;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div id="background" class="bg-layer"></div>
+  <div class="container">
+    <h2>🌎 kasi vardhan</h2>
+    <input type="text" id="cityInput" placeholder="Enter city name" />
+    <button onclick="getWeather()">Get Weather</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const background = document.getElementById("background");
+
+    async function getWeather() {
+      const city = document.getElementById("cityInput").value;
+      const resultDiv = document.getElementById("result");
+      if (!city) return resultDiv.innerHTML = "<p style='color:yellow'>⚠ Please enter a city</p>";
+
+      resultDiv.innerHTML = "<p>Loading...</p>";
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/weather?city=${city}`);
+        const data = await res.json();
+
+        if (data.error) {
+          resultDiv.innerHTML = `<p style='color:red'>❌ ${data.error}</p>`;
+        } else {
+          setAnimatedBackground(data.description);
+          resultDiv.innerHTML = `
+            <h3>${data.city}, ${data.country}</h3>
+            <h1>${data.temperature}°C</h1>
+            <p>${data.description}</p>
+          `;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = "<p style='color:red'>❌ Cannot connect to backend</p>";
+      }
+    }
+
+    function setAnimatedBackground(description) {
+      background.innerHTML = "";
+      background.className = "bg-layer";
+
+      const desc = description.toLowerCase();
+
+      // ☀ Sunny
+      if (desc.includes("clear")) {
+        addSun();
+        addClouds(3);
+        background.style.background = "linear-gradient(to bottom, #87ceeb, #ffeb99)";
+      }
+
+      // ☁ Cloudy
+      else if (desc.includes("cloud")) {
+        addClouds(6);
+        background.style.background = "linear-gradient(to bottom, #b0c4de, #708090)";
+      }
+
+      // 🌧 Rainy
+      else if (desc.includes("rain")) {
+        for (let i = 0; i < 50; i++) {
+          const drop = document.createElement("div");
+          drop.className = "rain-drop";
+          drop.style.left = Math.random() * 100 + "vw";
+          drop.style.animationDuration = 0.5 + Math.random() * 0.7 + "s";
+          background.appendChild(drop);
+        }
+        background.style.background = "#0a0a2a";
+      }
+
+      // ❄ Snowy
+      else if (desc.includes("snow")) {
+        for (let i = 0; i < 40; i++) {
+          const flake = document.createElement("div");
+          flake.className = "snow-flake";
+          flake.style.left = Math.random() * 100 + "vw";
+          flake.style.animationDuration = 3 + Math.random() * 3 + "s";
+          background.appendChild(flake);
+        }
+        background.style.background = "#cce6ff";
+      }
+
+      // 🌩 Thunderstorm
+      else if (desc.includes("thunder")) {
+        const lightning = document.createElement("div");
+        lightning.className = "lightning";
+        background.appendChild(lightning);
+        background.style.background = "#1a1a1a";
+      }
+    }
+
+    function addSun() {
+      const sun = document.createElement("div");
+      sun.className = "sun";
+      background.appendChild(sun);
+    }
+
+    function addClouds(count) {
+      for (let i = 0; i < count; i++) {
+        const cloud = document.createElement("div");
+        cloud.className = "cloud";
+        cloud.style.top = Math.random() * 50 + "%";
+        cloud.style.animationDelay = Math.random() * 10 + "s";
+        background.appendChild(cloud);
+      }
+    }
+  </script>
+</body>
+</html>
